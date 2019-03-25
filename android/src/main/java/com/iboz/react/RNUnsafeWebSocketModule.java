@@ -44,7 +44,7 @@ import okio.ByteString;
 
 @ReactModule(name = RNUnsafeWebSocketModule.NAME, hasConstants = false)
 public final class RNUnsafeWebSocketModule extends ReactContextBaseJavaModule {
-  public static final String NAME="RNUnsafeWebSocketModule";
+  public static final String NAME="RNUnsafeWebSocket";
   public interface ContentHandler {
     void onMessage(String text, WritableMap params);
 
