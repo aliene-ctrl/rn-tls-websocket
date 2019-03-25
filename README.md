@@ -3,11 +3,11 @@
 
 ## Getting started
 
-`$ npm install react-native-unsafe-web-socket --save`
+`$ npm install @iboz/react-native-unsafe-web-socket --save`
 
 ### Mostly automatic installation
 
-`$ react-native link react-native-unsafe-web-socket`
+`$ react-native link @iboz/react-native-unsafe-web-socket`
 
 ### Manual installation
 
@@ -45,7 +45,7 @@
 
 ## Usage
 ```javascript
-import RNUnsafeWebSocket from 'react-native-unsafe-web-socket';
+import RNUnsafeWebSocket from '@iboz/react-native-unsafe-web-socket';
 
 // TODO: What to do with the module?
 RNUnsafeWebSocket;

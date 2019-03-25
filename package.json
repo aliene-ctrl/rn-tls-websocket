@@ -1,7 +1,7 @@
 {
-  "name": "react-native-unsafe-web-socket",
+  "name": "@iboz/react-native-unsafe-web-socket",
   "version": "1.0.0",
-  "description": "",
+  "description": "## Getting started",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,9 +10,17 @@
     "react-native"
   ],
   "author": "",
-  "license": "",
+  "license": "ISC",
   "peerDependencies": {
     "react-native": "^0.56.1",
     "react-native-windows": "0.56.1-rc.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alieneme/react-native-unsafe-web-socket.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alieneme/react-native-unsafe-web-socket/issues"
+  },
+  "homepage": "https://github.com/alieneme/react-native-unsafe-web-socket#readme"
 }
