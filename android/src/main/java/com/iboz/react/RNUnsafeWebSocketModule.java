@@ -8,7 +8,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-package com.reactlibrary;
+package com.iboz.react;
 
 import com.facebook.common.logging.FLog;
 import com.facebook.react.bridge.Arguments;
@@ -89,11 +89,11 @@ public final class RNUnsafeWebSocketModule extends ReactContextBaseJavaModule {
     @Nullable final ReadableMap options,
     final int id) {
     // modified
-    OkHttpClient client = OkHttpClientProvider.getOkHttpClient()
-      .connectTimeout(10, TimeUnit.SECONDS)
-      .writeTimeout(10, TimeUnit.SECONDS)
-      .readTimeout(0, TimeUnit.MINUTES) // Disable timeouts for read
-      .build();
+    OkHttpClient client = OkHttpClientProvider.getOkHttpClient();
+    //   .connectTimeout(10, TimeUnit.SECONDS)
+    //   .writeTimeout(10, TimeUnit.SECONDS)
+    //   .readTimeout(0, TimeUnit.MINUTES) // Disable timeouts for read
+    //   .build();
 
     Request.Builder builder = new Request.Builder().tag(id).url(url);
 
