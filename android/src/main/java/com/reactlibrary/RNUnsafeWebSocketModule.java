@@ -89,7 +89,7 @@ public final class RNUnsafeWebSocketModule extends ReactContextBaseJavaModule {
     @Nullable final ReadableMap options,
     final int id) {
     // modified
-    OkHttpClient client = new OkHttpClientProvider.getOkHttpClient()
+    OkHttpClient client = OkHttpClientProvider.getOkHttpClient()
       .connectTimeout(10, TimeUnit.SECONDS)
       .writeTimeout(10, TimeUnit.SECONDS)
       .readTimeout(0, TimeUnit.MINUTES) // Disable timeouts for read
