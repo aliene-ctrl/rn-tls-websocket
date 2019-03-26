@@ -48,6 +48,6 @@
 import RNUnsafeWebSocket from '@iboz/react-native-unsafe-web-socket';
 
 // TODO: What to do with the module?
-RNUnsafeWebSocket;
+const ws = new RNUnsafeWebSocket(url, protocol);
 ```
   
