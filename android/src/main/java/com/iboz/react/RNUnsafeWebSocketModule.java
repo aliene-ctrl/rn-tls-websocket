@@ -41,10 +41,11 @@ import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
+import android.util.Log;
 
 @ReactModule(name = RNUnsafeWebSocketModule.NAME, hasConstants = false)
 public final class RNUnsafeWebSocketModule extends ReactContextBaseJavaModule {
-  public static final String NAME="RNUnsafeWebSocket";
+  public static final String NAME="RNUnsafeWebSocketModule";
   public interface ContentHandler {
     void onMessage(String text, WritableMap params);
 
@@ -61,6 +62,7 @@ public final class RNUnsafeWebSocketModule extends ReactContextBaseJavaModule {
     super(context);
     mReactContext = context;
     mCookieHandler = new ForwardingCookieHandler(context);
+    Log.v(NAME, NAME + " Is Available");
   }
 
   private void sendEvent(String eventName, WritableMap params) {
@@ -88,12 +90,17 @@ public final class RNUnsafeWebSocketModule extends ReactContextBaseJavaModule {
     @Nullable final ReadableArray protocols,
     @Nullable final ReadableMap options,
     final int id) {
+
+      Log.v(NAME, "Connect");
+
     // modified
     OkHttpClient client = OkHttpClientProvider.getOkHttpClient();
     //   .connectTimeout(10, TimeUnit.SECONDS)
     //   .writeTimeout(10, TimeUnit.SECONDS)
     //   .readTimeout(0, TimeUnit.MINUTES) // Disable timeouts for read
     //   .build();
+
+    Log.v(NAME, "Client initialised " + client.toString());
 
     Request.Builder builder = new Request.Builder().tag(id).url(url);
 
