@@ -1,6 +1,6 @@
 {
   "name": "@iboz/react-native-unsafe-web-socket",
-  "version": "1.4.0",
+  "version": "1.7.6",
   "description": "## Getting started",
   "main": "index.js",
   "scripts": {

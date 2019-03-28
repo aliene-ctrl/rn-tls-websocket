@@ -10,13 +10,27 @@ import { NativeModules, NativeEventEmitter, Platform } from 'react-native';
 import EventTarget from 'event-target-shim';
 import base64 from 'base64-js';
 
-// const Blob = require('Blob');
+const Blob = require('./src/Blob');
 // const EventTarget = require('event-target-shim');
-// const BlobManager = require('BlobManager');
+const BlobManager = require('./src/BlobManager');
 
 // const base64 = require('base64-js');
 // const binaryToBase64 = require('binaryToBase64');
 // const invariant = require('invariant');
+
+function binaryToBase64(data: ArrayBuffer | $ArrayBufferView) {
+  if (data instanceof ArrayBuffer) {
+    data = new Uint8Array(data);
+  }
+  if (data instanceof Uint8Array) {
+    return base64.fromByteArray(data);
+  }
+  if (!ArrayBuffer.isView(data)) {
+    throw new Error('data must be ArrayBuffer or typed array');
+  }
+  const {buffer, byteOffset, byteLength} = data;
+  return base64.fromByteArray(new Uint8Array(buffer, byteOffset, byteLength));
+}
 
 class WebSocketEvent {
   constructor(type, eventInitDict) {
@@ -145,17 +159,17 @@ class WebSocket extends EventTarget(...WEBSOCKET_EVENTS) {
     if (binaryType !== 'blob' && binaryType !== 'arraybuffer') {
       throw new Error("binaryType must be either 'blob' or 'arraybuffer'");
     }
-    // if (this._binaryType === 'blob' || binaryType === 'blob') {
-    //   invariant(
-    //     BlobManager.isAvailable,
-    //     'Native module BlobModule is required for blob support',
-    //   );
-    //   if (binaryType === 'blob') {
-    //     BlobManager.addWebSocketHandler(this._socketId);
-    //   } else {
-    //     BlobManager.removeWebSocketHandler(this._socketId);
-    //   }
-    // }
+    if (this._binaryType === 'blob' || binaryType === 'blob') {
+      invariant(
+        BlobManager.isAvailable,
+        'Native module BlobModule is required for blob support',
+      );
+      if (binaryType === 'blob') {
+        BlobManager.addWebSocketHandler(this._socketId);
+      } else {
+        BlobManager.removeWebSocketHandler(this._socketId);
+      }
+    }
     this._binaryType = binaryType;
   }
 
@@ -168,19 +182,19 @@ class WebSocket extends EventTarget(...WEBSOCKET_EVENTS) {
     this._close(code, reason);
   }
 
-  send(data) {
+  send(data: string | ArrayBuffer | ArrayBufferView | Blob) {
     if (this.readyState === this.CONNECTING) {
       throw new Error('INVALID_STATE_ERR');
     }
 
-    // if (data instanceof Blob) {
-    //   invariant(
-    //     BlobManager.isAvailable,
-    //     'Native module BlobModule is required for blob support',
-    //   );
-    //   BlobManager.sendOverSocket(data, this._socketId);
-    //   return;
-    // }
+    if (data instanceof Blob) {
+      invariant(
+        BlobManager.isAvailable,
+        'Native module BlobModule is required for blob support',
+      );
+      BlobManager.sendOverSocket(data, this._socketId);
+      return;
+    }
 
     if (typeof data === 'string') {
       WebSocketModule.send(data, this._socketId);
@@ -188,7 +202,7 @@ class WebSocket extends EventTarget(...WEBSOCKET_EVENTS) {
     }
 
     if (data instanceof ArrayBuffer || ArrayBuffer.isView(data)) {
-      WebSocketModule.sendBinary(base64.fromByteArray(data), this._socketId);
+      WebSocketModule.sendBinary(binaryToBase64(data), this._socketId);
       return;
     }
 
@@ -213,9 +227,9 @@ class WebSocket extends EventTarget(...WEBSOCKET_EVENTS) {
       WebSocketModule.close(this._socketId);
     }
 
-    // if (BlobManager.isAvailable && this._binaryType === 'blob') {
-    //   BlobManager.removeWebSocketHandler(this._socketId);
-    // }
+    if (BlobManager.isAvailable && this._binaryType === 'blob') {
+      BlobManager.removeWebSocketHandler(this._socketId);
+    }
   }
 
   _unregisterEvents() {
@@ -234,15 +248,15 @@ class WebSocket extends EventTarget(...WEBSOCKET_EVENTS) {
           case 'binary':
             data = base64.toByteArray(ev.data).buffer;
             break;
-          // case 'blob':
-          //   data = BlobManager.createFromOptions(ev.data);
-          //   break;
+          case 'blob':
+            data = BlobManager.createFromOptions(ev.data);
+            break;
         }
         this.dispatchEvent(new WebSocketEvent('message', { data }));
       }),
       this._eventEmitter.addListener('websocketOpen', ev => {
-        console.log('WebSocket opened!');
         if (ev.id !== this._socketId) {
+          console.warn('Socket id mismatch!', { id: ev.id, socketId: this._socketId });
           return;
         }
         this.readyState = this.OPEN;

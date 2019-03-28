@@ -25,6 +25,7 @@ import com.facebook.react.common.ReactConstants;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.modules.network.ForwardingCookieHandler;
+import com.facebook.react.modules.network.ReactCookieJarContainer;
 import com.facebook.react.modules.network.OkHttpClientProvider;
 import java.io.IOException;
 import java.net.URI;
@@ -42,6 +43,18 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 import android.util.Log;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.security.NoSuchAlgorithmException;
+import java.security.KeyManagementException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 @ReactModule(name = RNUnsafeWebSocketModule.NAME, hasConstants = false)
 public final class RNUnsafeWebSocketModule extends ReactContextBaseJavaModule {
@@ -62,7 +75,32 @@ public final class RNUnsafeWebSocketModule extends ReactContextBaseJavaModule {
     super(context);
     mReactContext = context;
     mCookieHandler = new ForwardingCookieHandler(context);
-    Log.v(NAME, NAME + " Is Available");
+  }
+
+  private SSLSocketFactory getTrustAllHostsSSLSocketFactory() {
+    Log.v(NAME, "Preparing Unsafe SSLContext TrustManager");
+    try {
+        TrustManager tm = new X509TrustManager() {
+            public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            }
+            
+            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            }
+            
+            public X509Certificate[] getAcceptedIssuers() {
+                return new X509Certificate[0];
+            }
+        };
+
+        SSLContext sslContext = SSLContext.getInstance("SSL");
+        sslContext.init(null, new TrustManager[]{tm}, new SecureRandom());
+
+        return sslContext.getSocketFactory();
+    } catch (KeyManagementException|NoSuchAlgorithmException e) {
+        Log.e(NAME, e.toString());
+        e.printStackTrace();
+        return null;
+    }
   }
 
   private void sendEvent(String eventName, WritableMap params) {
@@ -91,16 +129,24 @@ public final class RNUnsafeWebSocketModule extends ReactContextBaseJavaModule {
     @Nullable final ReadableMap options,
     final int id) {
 
-      Log.v(NAME, "Connect");
-
     // modified
-    OkHttpClient client = OkHttpClientProvider.getOkHttpClient();
-    //   .connectTimeout(10, TimeUnit.SECONDS)
-    //   .writeTimeout(10, TimeUnit.SECONDS)
-    //   .readTimeout(0, TimeUnit.MINUTES) // Disable timeouts for read
-    //   .build();
+    // OkHttpClient client = OkHttpClientProvider.getOkHttpClient();
+    OkHttpClient client = new OkHttpClient.Builder()
+    // .cookieJar(new ReactCookieJarContainer())
+    .sslSocketFactory(getTrustAllHostsSSLSocketFactory())
+    .hostnameVerifier(new HostnameVerifier() {
+      @Override
+      public boolean verify(String hostname, SSLSession session) {
+          return true;
+      }
+    })
+    .build();
 
-    Log.v(NAME, "Client initialised " + client.toString());
+      // Builder()
+      // .connectTimeout(10, TimeUnit.SECONDS)
+      // .writeTimeout(10, TimeUnit.SECONDS)
+      // .readTimeout(0, TimeUnit.MINUTES) // Disable timeouts for read
+      // .build();
 
     Request.Builder builder = new Request.Builder().tag(id).url(url);
 
@@ -213,7 +259,7 @@ public final class RNUnsafeWebSocketModule extends ReactContextBaseJavaModule {
         });
 
     // Trigger shutdown of the dispatcher's executor so this process can exit cleanly
-    client.dispatcher().executorService().shutdown();
+    // client.dispatcher().executorService().shutdown();
   }
 
   @ReactMethod
