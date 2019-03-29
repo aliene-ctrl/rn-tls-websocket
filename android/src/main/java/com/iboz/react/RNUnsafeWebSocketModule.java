@@ -75,32 +75,7 @@ public final class RNUnsafeWebSocketModule extends ReactContextBaseJavaModule {
     super(context);
     mReactContext = context;
     mCookieHandler = new ForwardingCookieHandler(context);
-  }
-
-  private SSLSocketFactory getTrustAllHostsSSLSocketFactory() {
-    Log.v(NAME, "Preparing Unsafe SSLContext TrustManager");
-    try {
-        TrustManager tm = new X509TrustManager() {
-            public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-            }
-            
-            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-            }
-            
-            public X509Certificate[] getAcceptedIssuers() {
-                return new X509Certificate[0];
-            }
-        };
-
-        SSLContext sslContext = SSLContext.getInstance("SSL");
-        sslContext.init(null, new TrustManager[]{tm}, new SecureRandom());
-
-        return sslContext.getSocketFactory();
-    } catch (KeyManagementException|NoSuchAlgorithmException e) {
-        Log.e(NAME, e.toString());
-        e.printStackTrace();
-        return null;
-    }
+    OkHttpClientProvider.setOkHttpClientFactory(new CustomOkHttpClientFactory());
   }
 
   private void sendEvent(String eventName, WritableMap params) {
@@ -130,17 +105,17 @@ public final class RNUnsafeWebSocketModule extends ReactContextBaseJavaModule {
     final int id) {
 
     // modified
-    // OkHttpClient client = OkHttpClientProvider.getOkHttpClient();
-    OkHttpClient client = new OkHttpClient.Builder()
+    OkHttpClient client = OkHttpClientProvider.getOkHttpClient();
+    // OkHttpClient client = new OkHttpClient.Builder()
     // .cookieJar(new ReactCookieJarContainer())
-    .sslSocketFactory(getTrustAllHostsSSLSocketFactory())
-    .hostnameVerifier(new HostnameVerifier() {
-      @Override
-      public boolean verify(String hostname, SSLSession session) {
-          return true;
-      }
-    })
-    .build();
+    // .sslSocketFactory(getTrustAllHostsSSLSocketFactory())
+    // .hostnameVerifier(new HostnameVerifier() {
+    //   @Override
+    //   public boolean verify(String hostname, SSLSession session) {
+    //       return true;
+    //   }
+    // })
+    // .build();
 
       // Builder()
       // .connectTimeout(10, TimeUnit.SECONDS)
@@ -259,7 +234,7 @@ public final class RNUnsafeWebSocketModule extends ReactContextBaseJavaModule {
         });
 
     // Trigger shutdown of the dispatcher's executor so this process can exit cleanly
-    // client.dispatcher().executorService().shutdown();
+    client.dispatcher().executorService().shutdown();
   }
 
   @ReactMethod
