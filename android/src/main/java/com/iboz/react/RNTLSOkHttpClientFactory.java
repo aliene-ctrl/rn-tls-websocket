@@ -29,8 +29,8 @@ import okio.Buffer;
 import okhttp3.OkHttpClient;
 import android.util.Log;
 
-public class CustomOkHttpClientFactory implements OkHttpClientFactory {
-    final static String NAME = "CustomOkHttpClientFactory";
+public class RNTLSOkHttpClientFactory implements OkHttpClientFactory {
+    final static String NAME = "RNTLSOkHttpClientFactory";
 
     @Override
     public OkHttpClient createNewNetworkModuleClient() {

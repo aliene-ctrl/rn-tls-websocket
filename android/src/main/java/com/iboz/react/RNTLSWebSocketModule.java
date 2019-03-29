@@ -56,9 +56,9 @@ import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-@ReactModule(name = RNUnsafeWebSocketModule.NAME, hasConstants = false)
-public final class RNUnsafeWebSocketModule extends ReactContextBaseJavaModule {
-  public static final String NAME="RNUnsafeWebSocketModule";
+@ReactModule(name = RNTLSWebSocketModule.NAME, hasConstants = false)
+public final class RNTLSWebSocketModule extends ReactContextBaseJavaModule {
+  public static final String NAME="RNTLSWebSocketModule";
   public interface ContentHandler {
     void onMessage(String text, WritableMap params);
 
@@ -71,11 +71,11 @@ public final class RNUnsafeWebSocketModule extends ReactContextBaseJavaModule {
   private ReactContext mReactContext;
   private ForwardingCookieHandler mCookieHandler;
 
-  public RNUnsafeWebSocketModule(ReactApplicationContext context) {
+  public RNTLSWebSocketModule(ReactApplicationContext context) {
     super(context);
     mReactContext = context;
     mCookieHandler = new ForwardingCookieHandler(context);
-    OkHttpClientProvider.setOkHttpClientFactory(new CustomOkHttpClientFactory());
+    OkHttpClientProvider.setOkHttpClientFactory(new RNTLSOkHttpClientFactory());
   }
 
   private void sendEvent(String eventName, WritableMap params) {
