@@ -75,7 +75,6 @@ public final class RNTLSWebSocketModule extends ReactContextBaseJavaModule {
     super(context);
     mReactContext = context;
     mCookieHandler = new ForwardingCookieHandler(context);
-    OkHttpClientProvider.setOkHttpClientFactory(new RNTLSOkHttpClientFactory());
   }
 
   private void sendEvent(String eventName, WritableMap params) {

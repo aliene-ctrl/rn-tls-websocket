@@ -37,7 +37,7 @@ public class RNTLSOkHttpClientFactory implements OkHttpClientFactory {
         X509TrustManager trustManager;
         SSLSocketFactory sslSocketFactory;
         try {
-            trustManager = trustManagerForCertificates(trustedCertificatesInputStream());
+            trustManager = getTrustySSLSocketFactory(); // trustManagerForCertificates(trustedCertificatesInputStream());
             SSLContext sslContext = SSLContext.getInstance("SSL");
             sslContext.init(null, new TrustManager[] { trustManager }, null);
             sslSocketFactory = sslContext.getSocketFactory();
@@ -228,6 +228,10 @@ public class RNTLSOkHttpClientFactory implements OkHttpClientFactory {
                 }
                 
                 public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    // if DEN certificate, only validate cert content
+                    String certDN = chain.getSubjectX500Principal().getName();
+                    Log.d(NAME, "CertDN = " + certDN);
+
                 }
                 
                 public X509Certificate[] getAcceptedIssuers() {
