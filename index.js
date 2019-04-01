@@ -39,7 +39,7 @@ class WebSocketEvent {
   }
 }
 
-const WebSocketModule = NativeModules.RNUnsafeWebSocketModule;
+const WebSocketModule = NativeModules.RNTLSWebSocketModule;
 
 const CONNECTING = 0;
 const OPEN = 1;
